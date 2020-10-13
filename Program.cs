@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using stock_quote_alert.Configurations;
 
 namespace stock_quote_alert
 {
@@ -18,6 +16,8 @@ namespace stock_quote_alert
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.Configure<ServiceConfigurations>(hostContext.Configuration.GetSection("ServiceConfigurations"));
+                    services.AddTransient<ServiceConfigurations>(_ => _.GetRequiredService<IOptions<ServiceConfigurations>>().Value);
                     services.AddHostedService<Worker>();
                 });
     }
