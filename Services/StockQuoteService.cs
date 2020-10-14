@@ -53,8 +53,6 @@ namespace stock_quote_alert.Services
                     _logger.LogError(e.Message);
                 }
 
-                var response = _apiClient.GetQuote(_serviceConfigurations.Api.ApiKey, _ativo).Result;
-
                 await Task.Delay(TimeSpan.FromMinutes(_serviceConfigurations.Api.IntervalInMinutes), stoppingToken);
             }
         }
