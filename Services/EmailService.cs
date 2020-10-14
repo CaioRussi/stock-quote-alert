@@ -1,8 +1,10 @@
-using MailKit.Net.Smtp;
+using System;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
-using MimeKit;
 using stock_quote_alert.Abstractions;
 using stock_quote_alert.Configurations;
+using MimeKit;
+using MailKit.Net.Smtp;
 
 namespace stock_quote_alert.Services
 {
@@ -13,6 +15,8 @@ namespace stock_quote_alert.Services
         public EmailService(IOptions<ServiceConfigurations> serviceConfigurations)
         {
             _serviceConfigurations = serviceConfigurations.Value;
+
+            ValidateEmails();
         }
 
         public void send(string from, string to, string subject, string message)
@@ -40,6 +44,22 @@ namespace stock_quote_alert.Services
             };
 
             return mailMessage;
+        }
+
+        private void ValidateEmails()
+        {
+            Regex regex = new Regex(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",
+                RegexOptions.CultureInvariant | RegexOptions.Singleline);
+            
+            if (!regex.IsMatch(_serviceConfigurations.Smtp.EmailFrom))
+            {
+                throw new ArgumentException("The EmailFrom is invalid in appsettings.json");
+            }
+            
+            if (!regex.IsMatch(_serviceConfigurations.Smtp.EmailTo))
+            {
+                throw new ArgumentException("The EmailTo is invalid in appsettings.json");
+            }
         }
     }
 }
